@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Selavie Femme
 
-## Getting Started
+E-commerce premium de beleza e cuidados pessoais, construído com Next.js (App Router), TypeScript, Tailwind CSS, Prisma, NextAuth e pagamento via PIX.
 
-First, run the development server:
+## Stack
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Framer Motion
+- **Formulários:** React Hook Form + Zod
+- **Estado:** Zustand (carrinho persistente)
+- **Auth:** NextAuth (Credentials)
+- **Dados:** Catálogo tipado + Prisma/PostgreSQL (produção)
+- **Pagamentos:** Mercado Pago PIX (com modo demonstração)
+
+## Começar
 
 ```bash
+npm install
+cp .env.example .env
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Conta demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- E-mail: `demo@selavie.com.br`
+- Senha: `selavie123`
 
-## Learn More
+### Cupons
 
-To learn more about Next.js, take a look at the following resources:
+- `SELAVIE10` — 10% off
+- `BEMVINDO15` — 15% off
+- `FRETE20` — R$ 20 off
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## PIX
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Sem `MERCADOPAGO_ACCESS_TOKEN`, o checkout gera QR Code + copia e cola em **modo demonstração** e aprova o pagamento automaticamente após ~15 segundos.
 
-## Deploy on Vercel
+Com token do Mercado Pago, o fluxo usa a API oficial e consulta o status real.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## PostgreSQL (opcional)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O storefront funciona com o catálogo em `src/data`. Para persistência Prisma:
+
+```bash
+# configure DATABASE_URL no .env
+npm run db:generate
+npm run db:push
+npm run db:seed
+```
+
+## Scripts
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Ambiente local |
+| `npm run build` | Build de produção |
+| `npm run start` | Servidor de produção |
+| `npm run db:seed` | Popula PostgreSQL |
+
+## Estrutura
+
+```
+src/
+  app/           # rotas App Router + API
+  components/    # UI, layout, home, produtos, checkout
+  data/          # catálogo e categorias
+  lib/           # auth, pix, frete, validações
+  store/         # carrinho Zustand
+prisma/          # schema + seed
+```
