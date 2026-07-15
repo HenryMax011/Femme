@@ -1,26 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #dff6fb;
+  --foreground: #1a5f7a;
+  --muted: #3a8fa8;
+  --aqua: #5bbcd6;
+  --pastel: #8dd5ea;
+  --soft: #b8e8f5;
+  --soft-2: #ade8f4;
+  --mist: #caf0f8;
+  --ink: #1a5f7a;
+  --border: rgba(173, 232, 244, 0.7);
+  --glass: rgba(255, 255, 255, 0.6);
+  --shadow: 0 16px 48px rgba(91, 188, 214, 0.12);
+  --font-outfit: "Outfit", "Segoe UI", sans-serif;
+  --font-cormorant: "Cormorant Garamond", Georgia, serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-aqua: var(--aqua);
+  --color-pastel: var(--pastel);
+  --color-soft: var(--soft);
+  --color-soft-2: var(--soft-2);
+  --color-mist: var(--mist);
+  --color-ink: var(--ink);
+  --color-border: var(--border);
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-cormorant);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-outfit), "Segoe UI", sans-serif;
+  font-weight: 300;
+  min-height: 100%;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(91, 188, 214, 0.35);
+  color: #ffffff;
+}
+
+@layer utilities {
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(173, 232, 244, 0.55);
+  }
+
+  .label-caps {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .section-pad {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
