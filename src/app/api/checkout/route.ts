@@ -3,6 +3,10 @@ import { randomUUID } from "crypto";
 import { createPixPayment } from "@/lib/pix";
 import { saveOrder } from "@/lib/orders-store";
 import { generateOrderNumber } from "@/lib/utils";
+import {
+  checkoutAddressSchema,
+  checkoutCustomerSchema,
+} from "@/lib/validations";
 import type { CartItem, ShippingOption } from "@/types";
 
 export async function POST(req: Request) {
@@ -10,27 +14,23 @@ export async function POST(req: Request) {
     const body = await req.json();
     const items = (body.items || []) as CartItem[];
     const shipping = body.shipping as ShippingOption;
-    const customer = body.customer as {
-      name: string;
-      email: string;
-      phone: string;
-    };
-    const address = body.address as {
-      street: string;
-      number: string;
-      complement?: string;
-      district: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
+    const customerParsed = checkoutCustomerSchema.safeParse(body.customer);
+    const addressParsed = checkoutAddressSchema.safeParse(body.address);
 
-    if (!items.length || !customer || !address || !shipping) {
+    if (
+      !items.length ||
+      !shipping ||
+      !customerParsed.success ||
+      !addressParsed.success
+    ) {
       return NextResponse.json(
         { message: "Dados incompletos para checkout" },
         { status: 400 },
       );
     }
+
+    const customer = customerParsed.data;
+    const address = addressParsed.data;
 
     const orderId = randomUUID();
     const orderNumber = generateOrderNumber();
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       customerName: customer.name,
       customerEmail: customer.email,
       customerPhone: customer.phone,
+      customerCpf: customer.cpf,
       address,
       shippingMethod: shipping.name,
       shippingPrice: shipping.price,

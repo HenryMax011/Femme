@@ -36,36 +36,64 @@ export default async function ProductsPage({
   const list = filterProducts(filters);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
-      <div className="mb-10 max-w-2xl">
-        <h1 className="font-display text-5xl text-ink">Produtos</h1>
-        <p className="mt-3 text-muted">
-          Catálogo premium com filtros inteligentes e experiência de compra fluida.
-        </p>
-      </div>
+    <div className="relative min-h-screen overflow-hidden bg-[#eef9fc]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-10%,#ffffff_0%,#dff6fb_40%,#caf0f8_100%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-1/4 top-24 h-[40vw] w-[40vw] rounded-full bg-[radial-gradient(circle,rgba(91,188,214,0.2),transparent_70%)] blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-1/5 bottom-0 h-[36vw] w-[36vw] rounded-full bg-[radial-gradient(circle,rgba(173,232,244,0.4),transparent_70%)] blur-3xl"
+      />
 
-      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-        <Suspense fallback={<div className="h-96 animate-pulse rounded-3xl bg-soft" />}>
-          <ProductFilters />
-        </Suspense>
-
-        <div>
-          <p className="mb-4 text-sm text-muted">
-            {list.length} produto{list.length === 1 ? "" : "s"} encontrado
-            {list.length === 1 ? "" : "s"}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
+        <div className="mb-8 max-w-2xl sm:mb-12">
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.28em] text-[#5bbcd6]">
+            Catálogo
           </p>
-          {list.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {list.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-[1.75rem] border border-border bg-white/80 px-6 py-16 text-center">
-              <p className="font-display text-3xl">Nenhum produto encontrado</p>
-              <p className="mt-2 text-muted">Ajuste os filtros e tente novamente.</p>
-            </div>
-          )}
+          <h1 className="font-display text-3xl font-light text-[#1a5f7a] sm:text-4xl md:text-5xl">
+            Produtos
+          </h1>
+          <p className="mt-3 max-w-md text-sm font-light text-[#3a8fa8]">
+            Skincare, perfumes e cuidados premium para o seu ritual de beleza.
+          </p>
+        </div>
+
+        <div className="grid gap-5 sm:gap-8 lg:grid-cols-[280px_1fr]">
+          <Suspense
+            fallback={
+              <div className="h-12 animate-pulse rounded-xl bg-white/60 lg:h-96" />
+            }
+          >
+            <ProductFilters />
+          </Suspense>
+
+          <div className="min-w-0">
+            <p className="mb-4 text-xs font-light uppercase tracking-[0.18em] text-[#3a8fa8] sm:mb-5">
+              {list.length} produto{list.length === 1 ? "" : "s"} encontrado
+              {list.length === 1 ? "" : "s"}
+            </p>
+            {list.length ? (
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
+                {list.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/90 bg-white/65 px-5 py-12 text-center backdrop-blur-md sm:px-6 sm:py-16">
+                <p className="font-display text-2xl font-light text-[#1a5f7a] sm:text-3xl">
+                  Nenhum produto encontrado
+                </p>
+                <p className="mt-2 text-sm font-light text-[#3a8fa8]">
+                  Ajuste os filtros e tente novamente.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

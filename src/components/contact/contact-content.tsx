@@ -3,10 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
-import {
-  FacebookIcon,
-  InstagramIcon,
-} from "@/components/ui/social-icons";
+import { InstagramIcon } from "@/components/ui/social-icons";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
@@ -133,15 +130,6 @@ export function ContactContent() {
                     aria-label="Instagram"
                   >
                     <InstagramIcon />
-                  </a>
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-[#ade8f4] bg-white text-ink transition-all duration-300 hover:border-[#2a9bb0] hover:bg-[#e8f7fb]"
-                    aria-label="Facebook"
-                  >
-                    <FacebookIcon />
                   </a>
                 </div>
               </div>

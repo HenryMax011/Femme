@@ -66,25 +66,36 @@ export function AboutContent() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="overflow-hidden">
+    <div className="relative overflow-hidden bg-[#eef9fc]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-10%,#ffffff_0%,#dff6fb_42%,#caf0f8_100%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-1/4 top-24 h-[42vw] w-[42vw] rounded-full bg-[radial-gradient(circle,rgba(91,188,214,0.2),transparent_70%)] blur-3xl"
+      />
+
       <section className="relative isolate">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,#dff6fb_0%,transparent_55%),radial-gradient(ellipse_at_bottom_right,#b8e8f5_0%,transparent_50%)]"
+          className="pointer-events-none absolute left-1/2 top-24 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-white/60 blur-3xl"
         />
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-28 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8 lg:pb-24">
+        <div className="mx-auto grid min-h-[min(760px,100svh)] max-w-7xl items-center gap-12 px-4 pb-20 pt-28 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: reduceMotion ? 0 : 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: easeOut }}
+            className="relative z-10"
           >
-            <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-[#2a9bb0]">
+            <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-[#5bbcd6]">
               Nossa história
             </p>
-            <h1 className="font-display text-4xl font-light leading-[1.1] text-ink sm:text-5xl md:text-6xl">
-              Beleza que nasce do cuidado
+            <h1 className="max-w-xl font-display text-5xl font-light leading-[1.02] text-[#1a5f7a] sm:text-6xl lg:text-7xl">
+              Beleza que nasce
+              <span className="block italic text-[#3a9fba]">do cuidado.</span>
             </h1>
-            <p className="mt-6 max-w-lg text-base font-light leading-8 text-[#5a8a9a]">
+            <p className="mt-7 max-w-lg text-base font-light leading-8 text-[#3d7588]">
               Nascemos do desejo de transformar o cuidado pessoal em uma
               experiência premium, sensorial e acessível. Unimos ciência
               cosmética e estética minimalista para criar produtos que
@@ -93,37 +104,38 @@ export function AboutContent() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/produtos"
-                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#1a5f7a] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-colors hover:bg-[#164f66]"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#1a5f7a] bg-[#1a5f7a] px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_8px_24px_rgba(26,95,122,0.18)] transition-all duration-300 hover:bg-[#154d63] hover:shadow-[0_12px_30px_rgba(26,95,122,0.25)]"
               >
                 Ver coleção
                 <ArrowRight size={14} />
               </Link>
               <Link
                 href="/contato"
-                className="inline-flex cursor-pointer items-center rounded-xl border border-[#ade8f4] bg-white/70 px-6 py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[#1a5f7a] transition-colors hover:border-[#2a9bb0] hover:bg-white"
+                className="inline-flex cursor-pointer items-center rounded-xl border border-[#ade8f4] bg-white/70 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#1a5f7a] backdrop-blur-md transition-all duration-300 hover:border-[#5bbcd6] hover:bg-white"
               >
                 Fale conosco
               </Link>
             </div>
           </motion.div>
 
-          {/* Composição editorial limpa — sem overlay de marca na foto */}
           <motion.div
             initial={{ opacity: 0, y: reduceMotion ? 0 : 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: easeOut, delay: 0.08 }}
-            className="relative"
+            className="relative mx-auto w-full max-w-2xl"
           >
+            <div className="absolute -inset-5 rounded-[1.75rem] border border-white/75 bg-white/30 shadow-[0_24px_80px_rgba(91,188,214,0.16)] backdrop-blur-md" />
             <div className="relative grid grid-cols-2 gap-3">
-              <div className="relative col-span-2 aspect-[16/10] overflow-hidden rounded-2xl bg-[#e8f4f7]">
+              <div className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-2xl bg-[#e8f4f7]">
                 <Image
                   src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=1200&q=80"
                   alt="Ambiente de beleza e cuidados"
                   fill
-                  className="object-cover object-center"
+                  className="object-cover object-center transition-transform duration-700 hover:scale-[1.02]"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a5f7a]/20 to-transparent" />
               </div>
               <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#e8f4f7]">
                 <Image
@@ -144,14 +156,26 @@ export function AboutContent() {
                 />
               </div>
             </div>
-            <p className="mt-6 text-center font-display text-5xl font-light uppercase tracking-[0.18em] text-[#1a5f7a] sm:text-6xl sm:tracking-[0.22em]">
-              Selavie Femme
-            </p>
+            <div className="absolute -bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/90 bg-white/90 px-6 py-3 shadow-[0_10px_30px_rgba(26,95,122,0.12)] backdrop-blur-xl">
+              <span className="h-px w-8 bg-[#5bbcd6]" />
+              <p className="whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.28em] text-[#1a5f7a]">
+                Selavie Femme
+              </p>
+              <span className="h-px w-8 bg-[#5bbcd6]" />
+            </div>
           </motion.div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+        <div className="mb-10 max-w-xl">
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.28em] text-[#5bbcd6]">
+            O que nos move
+          </p>
+          <h2 className="font-display text-4xl font-light text-[#1a5f7a] sm:text-5xl">
+            Cuidado em cada detalhe
+          </h2>
+        </div>
         <div className="grid gap-5 md:grid-cols-3">
           {pillars.map((item, index) => {
             const Icon = item.icon;
@@ -166,9 +190,9 @@ export function AboutContent() {
                   delay: reduceMotion ? 0 : index * 0.1,
                   ease: easeOut,
                 }}
-                className="group relative overflow-hidden rounded-[1.75rem] border border-[#ade8f4]/50 bg-white p-7 shadow-[0_8px_30px_rgba(26,95,122,0.06)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(26,95,122,0.12)]"
+                className="group relative overflow-hidden rounded-2xl border border-white/90 bg-white/70 p-7 shadow-[0_10px_36px_rgba(91,188,214,0.1)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#ade8f4] hover:bg-white/90 hover:shadow-[0_18px_48px_rgba(91,188,214,0.18)]"
               >
-                <div className="mb-5 flex size-11 items-center justify-center rounded-2xl bg-[#e8f7fb] text-[#1a5f7a] transition-colors duration-300 group-hover:bg-[#1a5f7a] group-hover:text-white">
+                <div className="mb-5 flex size-11 items-center justify-center rounded-xl border border-[#ade8f4] bg-[#e8f7fb] text-[#1a5f7a] transition-colors duration-300 group-hover:bg-[#1a5f7a] group-hover:text-white">
                   <Icon size={20} strokeWidth={1.6} />
                 </div>
                 <h2 className="font-display text-3xl font-light text-ink">
@@ -183,7 +207,7 @@ export function AboutContent() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-b from-transparent via-[#f4fafb] to-[#f4fafb] py-16 sm:py-20">
+      <section className="relative border-y border-white/70 bg-white/35 py-16 backdrop-blur-sm sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: reduceMotion ? 0 : 20 }}
@@ -216,10 +240,10 @@ export function AboutContent() {
                   delay: reduceMotion ? 0 : index * 0.07,
                   ease: easeOut,
                 }}
-                className="rounded-[1.5rem] border border-[#e2f2f6] bg-white p-6 transition-shadow duration-300 hover:shadow-[0_12px_40px_rgba(26,95,122,0.08)]"
+                className="rounded-2xl border border-white/90 bg-white/70 p-6 transition-all duration-300 hover:border-[#ade8f4] hover:bg-white/90 hover:shadow-[0_12px_40px_rgba(26,95,122,0.08)]"
               >
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-[#dff6fb] font-display text-sm text-[#1a5f7a]">
+                  <span className="flex size-8 items-center justify-center rounded-full border border-[#ade8f4] bg-[#dff6fb] font-display text-sm text-[#1a5f7a]">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <h3 className="font-display text-2xl font-light text-ink">
@@ -235,8 +259,7 @@ export function AboutContent() {
         </div>
       </section>
 
-      {/* Galeria editorial — 3 fotos iguais, sem collage */}
-      <section className="bg-[#f4fafb] pb-20 pt-4 sm:pb-24">
+      <section className="relative pb-20 pt-16 sm:pb-24 sm:pt-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
@@ -255,12 +278,12 @@ export function AboutContent() {
             </div>
             <Link
               href="/produtos"
-              className="group inline-flex items-center gap-1.5 text-sm font-light text-[#5a8a9a] transition-colors hover:text-ink"
+              className="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#ade8f4] bg-white px-10 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[#1a5f7a] shadow-[0_8px_28px_rgba(91,188,214,0.18)] transition-all duration-300 hover:bg-[#f7fcfd] hover:shadow-[0_12px_32px_rgba(91,188,214,0.28)] sm:px-12 sm:text-[13px]"
             >
               Explorar produtos
               <ArrowRight
-                size={14}
-                className="transition-transform group-hover:translate-x-0.5"
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-0.5"
               />
             </Link>
           </motion.div>
@@ -279,7 +302,7 @@ export function AboutContent() {
                 }}
                 className="group"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-[#e8f4f7]">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/90 bg-[#e8f4f7] shadow-[0_12px_36px_rgba(91,188,214,0.1)]">
                   <Image
                     src={item.src}
                     alt={item.alt}

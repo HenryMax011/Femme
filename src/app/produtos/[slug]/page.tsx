@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import {
   getProductBySlug,
   getRelatedProducts,
@@ -47,6 +49,14 @@ export default async function ProductPage({ params }: { params: Params }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+      <Link
+        href="/produtos"
+        className="mb-6 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#ade8f4] bg-white/80 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#1a5f7a] transition-colors hover:bg-white"
+      >
+        <ArrowLeft size={14} />
+        Todos os produtos
+      </Link>
+
       <div className="grid gap-10 lg:grid-cols-2">
         <ProductGallery images={product.images} name={product.name} />
 

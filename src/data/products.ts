@@ -125,7 +125,7 @@ export const products: Product[] = [
       "Aqua, Cocamidopropyl Betaine, Glycerin, Chamomilla Recutita Extract, Panthenol, Citric Acid, Phenoxyethanol.",
     howToUse:
       "Com o rosto úmido, massageie suavemente e enxágue. Use manhã e noite como primeiro passo da rotina.",
-    price: 79.9,
+    price: 0.01,
     brand: "Selavie Femme",
     gender: "UNISEX",
     images: [

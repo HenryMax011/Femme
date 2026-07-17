@@ -6,11 +6,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ verified?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { verified } = await searchParams;
+
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md items-center px-4 pb-20 pt-28">
       <div className="w-full">
-        <LoginForm />
+        <LoginForm emailVerified={verified === "1"} />
       </div>
     </div>
   );

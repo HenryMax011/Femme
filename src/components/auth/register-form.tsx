@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { registerSchema, type RegisterInput } from "@/lib/validations";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Button } from "@/components/ui/button";
 
 export function RegisterForm() {
@@ -14,10 +15,12 @@ export function RegisterForm() {
   const [error, setError] = useState("");
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
+    defaultValues: { phone: "" },
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -32,7 +35,7 @@ export function RegisterForm() {
       setError(json.message || "Não foi possível cadastrar");
       return;
     }
-    router.push("/login");
+    router.push(`/verificar-email?email=${encodeURIComponent(json.email)}`);
   });
 
   return (
@@ -48,10 +51,20 @@ export function RegisterForm() {
         {...register("email")}
         error={errors.email?.message}
       />
-      <Input
-        label="Telefone"
-        {...register("phone")}
-        error={errors.phone?.message}
+      <Controller
+        name="phone"
+        control={control}
+        render={({ field }) => (
+          <PhoneInput
+            label="Telefone"
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            name={field.name}
+            ref={field.ref}
+            error={errors.phone?.message}
+          />
+        )}
       />
       <Input
         label="Senha"
@@ -66,7 +79,11 @@ export function RegisterForm() {
         error={errors.confirmPassword?.message}
       />
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        className="w-full rounded-xl"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? "Cadastrando..." : "Cadastrar"}
       </Button>
       <p className="text-center text-sm text-muted">

@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, ShoppingBag, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useCartStore } from "@/store/cart-store";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -17,10 +19,15 @@ const nav = [
 
 export function Header() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const isHome = pathname === "/";
+  const isDarkSurface = isHome;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [heroLeaving, setHeroLeaving] = useState(false);
   const itemCount = useCartStore((s) => s.itemCount());
+  const accountHref = session?.user ? "/perfil" : "/login";
+  const accountLabel = session?.user ? "Perfil" : "Login";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -30,36 +37,45 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    const onLeave = () => setHeroLeaving(true);
+    window.addEventListener("selavie:hero-leave", onLeave);
+    return () => window.removeEventListener("selavie:hero-leave", onLeave);
+  }, []);
+
+  useEffect(() => {
+    setHeroLeaving(false);
+  }, [pathname]);
+
+  useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  const lightOnHero = isHome && !scrolled;
-  const text = lightOnHero ? "text-white/80" : "text-ink/80";
-  const textHover = lightOnHero ? "hover:text-white" : "hover:text-ink";
-  const active = lightOnHero ? "text-white" : "text-ink";
+  const lightOnDark = isDarkSurface && !scrolled;
+  const text = lightOnDark ? "text-white/80" : "text-ink/80";
+  const textHover = lightOnDark ? "hover:text-white" : "hover:text-ink";
+  const active = lightOnDark ? "text-white" : "text-ink";
 
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         scrolled
           ? "bg-white/70 shadow-[0_8px_30px_rgba(91,188,214,0.12)] backdrop-blur-xl"
           : "bg-transparent",
+        heroLeaving && "pointer-events-none opacity-0",
       )}
     >
       <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className={cn(
-            "font-display text-sm font-light tracking-[0.35em] transition-colors",
-            lightOnHero ? "text-white/90" : "text-ink",
-          )}
-        >
-          SF
-        </Link>
+        {isHome ? (
+          <span className="relative z-10 block h-11 w-[7.5rem] shrink-0" aria-hidden />
+        ) : (
+          <Link href="/" className="relative z-10 shrink-0">
+            <BrandLogo size="sm" priority />
+          </Link>
+        )}
 
         <nav className="hidden items-center gap-8 md:flex">
           {nav.map((item) => (
@@ -79,7 +95,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
-            href="/login"
+            href={accountHref}
             className={cn(
               "hidden cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-[11px] font-light uppercase tracking-[0.16em] transition-colors sm:inline-flex",
               text,
@@ -87,14 +103,14 @@ export function Header() {
             )}
           >
             <UserRound className="h-4 w-4" />
-            Login
+            {accountLabel}
           </Link>
 
           <Link
             href="/carrinho"
             className={cn(
               "relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border transition-colors",
-              lightOnHero
+              lightOnDark
                 ? "border-white/30 bg-white/10 text-white hover:bg-white/20"
                 : "border-border bg-white/60 text-ink hover:bg-white",
             )}
@@ -112,7 +128,7 @@ export function Header() {
             type="button"
             className={cn(
               "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border md:hidden",
-              lightOnHero
+              lightOnDark
                 ? "border-white/30 bg-white/10 text-white"
                 : "border-border bg-white/60 text-ink",
             )}
@@ -142,9 +158,7 @@ export function Header() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-8 flex items-center justify-between">
-                <span className="font-display text-sm tracking-[0.35em] text-ink">
-                  SF
-                </span>
+                <BrandLogo size="sm" />
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
@@ -158,7 +172,10 @@ export function Header() {
                 {[
                   ...nav,
                   { href: "/carrinho", label: "Carrinho" },
-                  { href: "/login", label: "Login/Cadastro" },
+                  {
+                    href: accountHref,
+                    label: session?.user ? "Perfil" : "Login/Cadastro",
+                  },
                 ].map((item) => (
                   <Link
                     key={item.href}

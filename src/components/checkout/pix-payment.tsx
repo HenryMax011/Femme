@@ -38,10 +38,12 @@ export function PixPayment({
 
     const poll = async () => {
       if (approved) return;
-      const res = await fetch(
-        `/api/pix/status?orderId=${orderId}&elapsed=${seconds}`,
-        { cache: "no-store" },
-      );
+      const res = await fetch("/api/pix/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+        cache: "no-store",
+      });
       const data = await res.json();
       if (cancelled) return;
       setStatus(data.paymentStatus);
@@ -57,7 +59,7 @@ export function PixPayment({
       cancelled = true;
       clearInterval(id);
     };
-  }, [orderId, onApproved, seconds]);
+  }, [orderId, onApproved]);
 
   const copy = async () => {
     await navigator.clipboard.writeText(copyPaste);

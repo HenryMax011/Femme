@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { getOrderById } from "@/lib/orders-store";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatCpfDisplay, formatCepDisplay } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Pedido",
@@ -17,7 +19,17 @@ export default async function OrderPage({ params }: { params: Params }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
-      <h1 className="font-display text-5xl text-ink">Pedido {order.orderNumber}</h1>
+      <Link
+        href="/perfil"
+        className="mb-6 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#ade8f4] bg-white/80 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#1a5f7a] transition-colors hover:bg-white"
+      >
+        <ArrowLeft size={14} />
+        Voltar
+      </Link>
+
+      <h1 className="font-display text-5xl text-ink">
+        Pedido {order.orderNumber}
+      </h1>
       <p className="mt-2 text-muted">
         Status: {order.status} · Pagamento: {order.paymentStatus}
       </p>
@@ -28,6 +40,10 @@ export default async function OrderPage({ params }: { params: Params }) {
           <p className="text-sm text-muted">
             {order.customerName}
             <br />
+            {order.customerCpf
+              ? `CPF ${formatCpfDisplay(order.customerCpf)}`
+              : null}
+            {order.customerCpf ? <br /> : null}
             {order.customerEmail}
             <br />
             {order.customerPhone}
@@ -41,7 +57,7 @@ export default async function OrderPage({ params }: { params: Params }) {
             <br />
             {order.address.district} · {order.address.city}/{order.address.state}
             <br />
-            CEP {order.address.zip}
+            CEP {formatCepDisplay(order.address.zip)}
             <br />
             {order.shippingMethod} · {formatCurrency(order.shippingPrice)}
           </p>

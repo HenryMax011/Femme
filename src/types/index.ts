@@ -76,6 +76,7 @@ export type StoredOrder = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  customerCpf?: string;
   address: {
     street: string;
     number: string;
@@ -101,6 +102,7 @@ export type StoredOrder = {
   items: CartItem[];
   createdAt: string;
   approvedAt?: string;
+  confirmationEmailSentAt?: string;
 };
 
 export type ProductFilters = {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -13,22 +13,35 @@ import {
 } from "@/lib/validations";
 import { useCartStore } from "@/store/cart-store";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { CpfInput } from "@/components/ui/cpf-input";
+import { CepInput } from "@/components/ui/cep-input";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { calculateShipping } from "@/lib/shipping";
+import { lookupAddressByCep } from "@/lib/cep";
+import { BRAZIL_STATES } from "@/lib/brazil-states";
 import type { ShippingOption } from "@/types";
+import type { PublicUserProfile } from "@/types/profile";
 import { PixPayment } from "@/components/checkout/pix-payment";
-import { cn } from "@/lib/utils";
 
 const steps = ["Cliente", "Endereço", "Frete", "Pagamento", "Confirmação"];
 
-export function CheckoutFlow() {
+export function CheckoutFlow({
+  initialProfile = null,
+}: {
+  initialProfile?: PublicUserProfile | null;
+}) {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
   const discount = useCartStore((s) => s.discount);
   const couponCode = useCartStore((s) => s.couponCode);
   const clearCart = useCartStore((s) => s.clearCart);
+
+  const defaultAddress =
+    initialProfile?.addresses.find((item) => item.isDefault) ||
+    initialProfile?.addresses[0];
 
   const [step, setStep] = useState(0);
   const [customer, setCustomer] = useState<CheckoutCustomerInput | null>(null);
@@ -44,22 +57,29 @@ export function CheckoutFlow() {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cepStatus, setCepStatus] = useState("");
+  const [lookingUpCep, setLookingUpCep] = useState(false);
 
   const customerForm = useForm<CheckoutCustomerInput>({
     resolver: zodResolver(checkoutCustomerSchema),
-    defaultValues: { name: "", email: "", phone: "" },
+    defaultValues: {
+      name: initialProfile?.name || "",
+      email: initialProfile?.email || "",
+      cpf: initialProfile?.cpf || "",
+      phone: initialProfile?.phone || "",
+    },
   });
 
   const addressForm = useForm<CheckoutAddressInput>({
     resolver: zodResolver(checkoutAddressSchema),
     defaultValues: {
-      zip: "",
-      street: "",
-      number: "",
-      complement: "",
-      district: "",
-      city: "",
-      state: "",
+      zip: defaultAddress?.zip || "",
+      street: defaultAddress?.street || "",
+      number: defaultAddress?.number || "",
+      complement: defaultAddress?.complement || "",
+      district: defaultAddress?.district || "",
+      city: defaultAddress?.city || "",
+      state: defaultAddress?.state || "",
     },
   });
 
@@ -83,6 +103,47 @@ export function CheckoutFlow() {
     setCustomer(data);
     setStep(1);
   });
+
+  const fillAddressFromCep = async (cepDigits: string) => {
+    if (cepDigits.length !== 8) {
+      setCepStatus("");
+      return;
+    }
+
+    setLookingUpCep(true);
+    setCepStatus("Buscando endereço...");
+    try {
+      const addressData = await lookupAddressByCep(cepDigits);
+      if (!addressData) {
+        setCepStatus("CEP não encontrado. Preencha o endereço manualmente.");
+        return;
+      }
+
+      if (addressData.street) {
+        addressForm.setValue("street", addressData.street, {
+          shouldValidate: true,
+        });
+      }
+      if (addressData.district) {
+        addressForm.setValue("district", addressData.district, {
+          shouldValidate: true,
+        });
+      }
+      if (addressData.city) {
+        addressForm.setValue("city", addressData.city, { shouldValidate: true });
+      }
+      if (addressData.state) {
+        addressForm.setValue("state", addressData.state, {
+          shouldValidate: true,
+        });
+      }
+      setCepStatus("Endereço preenchido. Confira e informe o número.");
+    } catch {
+      setCepStatus("Não foi possível buscar o CEP. Preencha manualmente.");
+    } finally {
+      setLookingUpCep(false);
+    }
+  };
 
   const onAddress = addressForm.handleSubmit((data) => {
     setAddress(data);
@@ -156,6 +217,11 @@ export function CheckoutFlow() {
             className="space-y-4 rounded-[1.75rem] border border-border bg-white/90 p-6"
           >
             <h2 className="font-display text-3xl">Dados do cliente</h2>
+            {initialProfile ? (
+              <p className="rounded-xl bg-[#dff6fb] px-4 py-3 text-sm text-[#1a5f7a]">
+                Dados preenchidos pelo seu perfil. Confira antes de continuar.
+              </p>
+            ) : null}
             <Input
               label="Nome completo"
               {...customerForm.register("name")}
@@ -167,10 +233,35 @@ export function CheckoutFlow() {
               {...customerForm.register("email")}
               error={customerForm.formState.errors.email?.message}
             />
-            <Input
-              label="Telefone"
-              {...customerForm.register("phone")}
-              error={customerForm.formState.errors.phone?.message}
+            <Controller
+              name="cpf"
+              control={customerForm.control}
+              render={({ field }) => (
+                <CpfInput
+                  label="CPF"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  error={customerForm.formState.errors.cpf?.message}
+                />
+              )}
+            />
+            <Controller
+              name="phone"
+              control={customerForm.control}
+              render={({ field }) => (
+                <PhoneInput
+                  label="Telefone"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  error={customerForm.formState.errors.phone?.message}
+                />
+              )}
             />
             <Button type="submit" className="w-full">
               Continuar
@@ -184,10 +275,52 @@ export function CheckoutFlow() {
             className="space-y-4 rounded-[1.75rem] border border-border bg-white/90 p-6"
           >
             <h2 className="font-display text-3xl">Endereço</h2>
-            <Input
-              label="CEP"
-              {...addressForm.register("zip")}
-              error={addressForm.formState.errors.zip?.message}
+            {initialProfile && initialProfile.addresses.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm text-muted">Endereços salvos no perfil:</p>
+                <div className="flex flex-wrap gap-2">
+                  {initialProfile.addresses.map((saved) => (
+                    <button
+                      key={saved.id}
+                      type="button"
+                      onClick={() => {
+                        addressForm.reset({
+                          zip: saved.zip,
+                          street: saved.street,
+                          number: saved.number,
+                          complement: saved.complement || "",
+                          district: saved.district,
+                          city: saved.city,
+                          state: saved.state,
+                        });
+                      }}
+                      className="cursor-pointer rounded-full border border-[#ade8f4] bg-white px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[#1a5f7a] hover:border-[#5bbcd6]"
+                    >
+                      {saved.label}
+                      {saved.isDefault ? " · padrão" : ""}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <Controller
+              name="zip"
+              control={addressForm.control}
+              render={({ field }) => (
+                <CepInput
+                  label="CEP"
+                  value={field.value}
+                  onChange={(digits) => {
+                    field.onChange(digits);
+                    void fillAddressFromCep(digits);
+                  }}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  error={addressForm.formState.errors.zip?.message}
+                  hint={lookingUpCep ? "Buscando endereço..." : cepStatus}
+                />
+              )}
             />
             <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
               <Input
@@ -207,18 +340,35 @@ export function CheckoutFlow() {
               {...addressForm.register("district")}
               error={addressForm.formState.errors.district?.message}
             />
-            <div className="grid gap-4 sm:grid-cols-[1fr_100px]">
+            <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
               <Input
                 label="Cidade"
                 {...addressForm.register("city")}
                 error={addressForm.formState.errors.city?.message}
               />
-              <Input
-                label="UF"
-                maxLength={2}
-                {...addressForm.register("state")}
-                error={addressForm.formState.errors.state?.message}
-              />
+              <label className="block space-y-1.5">
+                <span className="text-sm font-medium text-ink/80">UF</span>
+                <select
+                  {...addressForm.register("state")}
+                  className={cn(
+                    "w-full rounded-xl border border-[#ade8f4]/80 bg-white/60 px-3 py-3 text-sm font-light text-ink outline-none transition-all duration-200 focus:border-aqua focus:ring-2 focus:ring-aqua/20",
+                    addressForm.formState.errors.state &&
+                      "border-red-400 focus:border-red-400 focus:ring-red-200",
+                  )}
+                >
+                  <option value="">UF</option>
+                  {BRAZIL_STATES.map((state) => (
+                    <option key={state.uf} value={state.uf}>
+                      {state.uf}
+                    </option>
+                  ))}
+                </select>
+                {addressForm.formState.errors.state?.message ? (
+                  <span className="text-xs text-red-500">
+                    {addressForm.formState.errors.state.message}
+                  </span>
+                ) : null}
+              </label>
             </div>
             <div className="flex gap-3">
               <Button type="button" variant="outline" onClick={() => setStep(0)}>

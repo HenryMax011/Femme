@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactInput } from "@/lib/validations";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 
 export function ContactForm() {
@@ -12,11 +13,13 @@ export function ContactForm() {
   const [error, setError] = useState("");
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
+    defaultValues: { phone: "" },
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -43,10 +46,20 @@ export function ContactForm() {
           {...register("name")}
           error={errors.name?.message}
         />
-        <Input
-          label="Telefone"
-          {...register("phone")}
-          error={errors.phone?.message}
+        <Controller
+          name="phone"
+          control={control}
+          render={({ field }) => (
+            <PhoneInput
+              label="Telefone"
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+              ref={field.ref}
+              error={errors.phone?.message}
+            />
+          )}
         />
       </div>
       <Input
@@ -60,9 +73,7 @@ export function ContactForm() {
         {...register("message")}
         error={errors.message?.message}
       />
-      {error ? (
-        <p className="text-sm text-red-500">{error}</p>
-      ) : null}
+      {error ? <p className="text-sm text-red-500">{error}</p> : null}
       {success ? (
         <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           Mensagem enviada! Retornaremos em breve.

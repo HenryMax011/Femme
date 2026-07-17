@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { WhatsAppButton } from "@/components/layout/whatsapp-button";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
 import "./globals.css";
 
@@ -62,8 +61,7 @@ export default function RootLayout({
         <AuthSessionProvider>
           <Header />
           <main className="flex-1">{children}</main>
-          <Footer />
-          <WhatsAppButton />
+          <SiteChrome />
         </AuthSessionProvider>
       </body>
     </html>

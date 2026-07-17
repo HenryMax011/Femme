@@ -10,7 +10,11 @@ import { loginSchema, type LoginInput } from "@/lib/validations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export function LoginForm() {
+type LoginFormProps = {
+  emailVerified?: boolean;
+};
+
+export function LoginForm({ emailVerified = false }: LoginFormProps) {
   const router = useRouter();
   const [error, setError] = useState("");
   const {
@@ -29,10 +33,10 @@ export function LoginForm() {
       redirect: false,
     });
     if (res?.error) {
-      setError("E-mail ou senha inválidos.");
+      setError("E-mail ou senha inválidos, ou conta ainda não confirmada.");
       return;
     }
-    router.push("/");
+    router.push("/perfil");
     router.refresh();
   });
 
@@ -44,7 +48,7 @@ export function LoginForm() {
       <div>
         <h1 className="font-display text-4xl text-ink">Entrar</h1>
         <p className="mt-1 text-sm text-muted">
-          Demo: demo@selavie.com.br / selavie123
+          Demo: henrymaximo8@gmail.com / selavie123
         </p>
       </div>
       <Input
@@ -59,8 +63,17 @@ export function LoginForm() {
         {...register("password")}
         error={errors.password?.message}
       />
+      {emailVerified ? (
+        <p className="rounded-xl bg-[#dff6fb] px-4 py-3 text-sm text-[#1a5f7a]">
+          E-mail confirmado. Agora você já pode entrar.
+        </p>
+      ) : null}
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        className="w-full rounded-xl"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? "Entrando..." : "Entrar"}
       </Button>
       <p className="text-center text-sm text-muted">

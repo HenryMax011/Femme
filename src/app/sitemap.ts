@@ -5,7 +5,7 @@ import { categories } from "@/data/categories";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/produtos", "/sobre", "/contato"].map((path) => ({
+  const staticRoutes = ["", "/colecao", "/produtos", "/sobre", "/contato"].map((path) => ({
     url: `${siteUrl}${path}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,

@@ -25,10 +25,10 @@ export function FeaturedProductCard({ product, badge }: Props) {
         : null;
 
   return (
-    <article className="group flex h-full flex-col">
+    <article className="group flex h-full flex-col rounded-2xl border border-white/90 bg-white/65 p-3 shadow-[0_10px_36px_rgba(91,188,214,0.1)] backdrop-blur-md transition-all duration-500 hover:border-[#ade8f4] hover:bg-white/85 hover:shadow-[0_16px_44px_rgba(91,188,214,0.18)]">
       <Link
         href={`/produtos/${product.slug}`}
-        className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-[#e8f4f7]"
+        className="relative block aspect-[4/5] overflow-hidden rounded-xl bg-[#e8f4f7]"
       >
         <Image
           src={product.images[0]}
@@ -38,18 +38,18 @@ export function FeaturedProductCard({ product, badge }: Props) {
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
         />
         {badgeLabel ? (
-          <span className="absolute left-3 top-3 rounded-full bg-[#1a5f7a] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-white">
+          <span className="absolute left-3 top-3 rounded-full border border-[#ade8f4]/80 bg-white/85 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#1a5f7a] backdrop-blur-md">
             {badgeLabel}
           </span>
         ) : null}
       </Link>
 
-      <div className="flex flex-1 flex-col pt-4">
+      <div className="flex flex-1 flex-col px-1 pt-4 pb-1">
         <div className="mb-2 flex items-center gap-1.5">
           <StarRating
             rating={product.rating}
             size={13}
-            className="[&_svg]:fill-[#2a9bb0] [&_svg]:text-[#2a9bb0]"
+            className="[&_svg]:fill-[#5bbcd6] [&_svg]:text-[#5bbcd6]"
           />
           <span className="text-xs text-[#7aabba]">
             ({product.reviewCount})
@@ -57,13 +57,13 @@ export function FeaturedProductCard({ product, badge }: Props) {
         </div>
 
         <Link href={`/produtos/${product.slug}`}>
-          <h3 className="font-display text-xl font-light leading-snug text-ink transition-colors hover:text-ink/80">
+          <h3 className="font-display text-xl font-light leading-snug text-[#1a5f7a] transition-colors hover:text-[#154d63]">
             {product.name}
           </h3>
         </Link>
 
         <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-base font-semibold text-ink">
+          <span className="text-base font-semibold text-[#1a5f7a]">
             {formatCurrency(product.price)}
           </span>
           {product.compareAt ? (
@@ -79,7 +79,7 @@ export function FeaturedProductCard({ product, badge }: Props) {
             addItem(product);
             router.push("/checkout");
           }}
-          className="mt-4 w-full cursor-pointer rounded-xl bg-[#1a5f7a] py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 hover:bg-[#164f66]"
+          className="mt-4 w-full cursor-pointer rounded-xl border border-[#ade8f4] bg-[#1a5f7a] py-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_8px_24px_rgba(26,95,122,0.18)] transition-all duration-300 hover:bg-[#154d63] hover:shadow-[0_12px_28px_rgba(26,95,122,0.26)]"
         >
           Comprar Agora
         </button>

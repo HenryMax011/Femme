@@ -37,6 +37,16 @@ export async function getOrderById(id: string) {
   return orders.find((o) => o.id === id || o.orderNumber === id);
 }
 
+export async function getOrdersByEmail(email: string) {
+  const orders = await readOrders();
+  return orders
+    .filter((order) => order.customerEmail.toLowerCase() === email.toLowerCase())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+}
+
 export async function updateOrder(
   id: string,
   patch: Partial<StoredOrder>,
