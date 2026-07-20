@@ -19,6 +19,7 @@
 
 # production
 /build
+/dist-hostinger
 
 # misc
 .DS_Store

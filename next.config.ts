@@ -1,12 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Build local → upload pronto (contorna o build quebrado da Hostinger)
+  output: "standalone",
   experimental: {
-    // Cache em disco — dev mais rápido entre reinícios
     turbopackFileSystemCacheForDev: true,
-    // Cache em disco — builds subsequentes mais rápidos
-    turbopackFileSystemCacheForBuild: true,
-    // Tree-shake de pacotes pesados usados no site
     optimizePackageImports: ["framer-motion"],
   },
   turbopack: {},
