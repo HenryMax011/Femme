@@ -20,9 +20,10 @@
 | Node.js | `22` |
 | Install | `npm ci` |
 | Build | `npm run build` |
-| Start | `npm run start -- -p $PORT` |
+| Start | `node server.js` |
 
-> O `npm run build` usa **Webpack** (não Turbopack). Turbopack no build falha com `EACCES` na Hostinger.
+> O `npm run build` usa **Webpack**. O processo sobe com `server.js` (escuta `PORT` e `0.0.0.0`).
+> Alternativa: Start = `npm run start` (mesmo entry point).
 
 4. Em **Environment variables**, copie de `.env.production.example` e ajuste:
    - `NEXT_PUBLIC_SITE_URL` e `NEXTAUTH_URL` / `AUTH_URL` = `https://seu-dominio`
