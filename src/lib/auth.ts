@@ -5,6 +5,7 @@ import { loginSchema } from "@/lib/validations";
 import { findUserByEmail } from "@/lib/users-store";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",

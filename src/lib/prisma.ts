@@ -18,8 +18,13 @@ function createPrismaClient() {
   });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+/** Lazy — não derruba o boot do servidor só por importar o módulo. */
+export const prisma =
+  globalForPrisma.prisma ??
+  new Proxy({} as PrismaClient, {
+    get(_target, prop, receiver) {
+      const client = (globalForPrisma.prisma ??= createPrismaClient());
+      const value = Reflect.get(client, prop, receiver);
+      return typeof value === "function" ? value.bind(client) : value;
+    },
+  });
