@@ -1,30 +1,21 @@
 /**
- * ZIP standalone para Hostinger (app já compilado).
- * - Usa o server.js gerado pelo Next (não o custom da raiz)
- * - Remove .env / .data
- * - Corrige caminhos absolutos do Windows
- * - package.json com build + start (exigência Hostinger)
+ * Pacote Hostinger PREBUILT:
+ * - .next de produção (sem cache/dev/standalone)
+ * - sem node_modules (npm ci no Linux)
+ * - server.js + package.json com build=prisma generate
  */
-import {
-  cp,
-  mkdir,
-  rm,
-  access,
-  readFile,
-  writeFile,
-  readdir,
-} from "node:fs/promises";
+import { cp, mkdir, rm, access, writeFile, readFile } from "node:fs/promises";
+import { statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, "dist-hostinger");
-const stage = path.join(outDir, "standalone-stage");
+const stage = path.join(outDir, "prebuilt-stage");
 const zipPath = path.join(outDir, "selavie-femme-standalone.zip");
-const standaloneSrc = path.join(root, ".next", "standalone");
 
-console.log("1/4 Build local (webpack + standalone)...");
+console.log("1/3 Build local...");
 execFileSync("npm", ["run", "build"], {
   cwd: root,
   stdio: "inherit",
@@ -32,104 +23,73 @@ execFileSync("npm", ["run", "build"], {
   env: { ...process.env, NODE_ENV: "production" },
 });
 
-await access(standaloneSrc);
+await access(path.join(root, ".next", "BUILD_ID"));
+await access(path.join(root, "server.js"));
 
-console.log("2/4 Montando pasta de deploy...");
+console.log("2/3 Montando pacote enxuto...");
 await rm(outDir, { recursive: true, force: true });
-await mkdir(stage, { recursive: true });
-await cp(standaloneSrc, stage, { recursive: true });
 await mkdir(path.join(stage, ".next"), { recursive: true });
-await cp(path.join(root, ".next", "static"), path.join(stage, ".next", "static"), {
-  recursive: true,
-});
-await cp(path.join(root, "public"), path.join(stage, "public"), {
-  recursive: true,
-});
 
-// Remover arquivos sensíveis / locais que o tracing possa ter incluído
-for (const name of [".env", ".env.local", ".env.production", ".data", ".git"]) {
-  await rm(path.join(stage, name), { recursive: true, force: true });
-}
-
-console.log("3/4 Ajustando server.js e package.json...");
-const serverJsPath = path.join(stage, "server.js");
-let serverJs = await readFile(serverJsPath, "utf8");
-
-// Garante que é o server do Next standalone (tem startServer)
-if (!serverJs.includes("startServer") && !serverJs.includes("next/dist/server")) {
-  throw new Error(
-    "server.js do standalone inválido — rebuild necessário (não use o server.js custom da raiz).",
-  );
-}
-
-const absVariants = [
-  root,
-  root.replace(/\\/g, "\\\\"),
-  root.replace(/\\/g, "/"),
-  JSON.stringify(root).slice(1, -1),
+// Só o necessário para next start / server.js em produção
+const nextKeep = [
+  "BUILD_ID",
+  "build-manifest.json",
+  "package.json",
+  "prerender-manifest.json",
+  "react-loadable-manifest.json",
+  "routes-manifest.json",
+  "app-path-routes-manifest.json",
+  "export-marker.json",
+  "images-manifest.json",
+  "required-server-files.json",
+  "server",
+  "static",
 ];
-for (const variant of [...new Set(absVariants)].filter(Boolean)) {
-  serverJs = serverJs.split(variant).join(".");
-}
-// Força hostname/porta corretos no Linux
-if (!serverJs.includes("process.env.PORT")) {
-  throw new Error("server.js standalone sem PORT — versão inesperada do Next.");
-}
-await writeFile(serverJsPath, serverJs, "utf8");
 
-await writeFile(
-  path.join(stage, "package.json"),
-  JSON.stringify(
-    {
-      name: "selavie-femme",
-      version: "1.0.0",
-      private: true,
-      scripts: {
-        build: "node -e \"console.log('[hostinger] prebuilt standalone — skip compile')\"",
-        start: "node server.js",
-      },
-      engines: { node: ">=20 <25" },
-    },
-    null,
-    2,
-  ),
-  "utf8",
-);
-
-// Sanity: arquivos essenciais
-for (const rel of ["server.js", "package.json", ".next", "public", "node_modules"]) {
-  await access(path.join(stage, rel));
+for (const name of nextKeep) {
+  const src = path.join(root, ".next", name);
+  try {
+    await access(src);
+    await cp(src, path.join(stage, ".next", name), { recursive: true });
+  } catch {
+    // opcional em algumas versões do Next
+  }
 }
 
-const top = await readdir(stage);
-console.log("Conteúdo do pacote:", top.join(", "));
+for (const name of [
+  "public",
+  "prisma",
+  "prisma.config.ts",
+  "server.js",
+  "package-lock.json",
+  "next.config.ts",
+  "tsconfig.json",
+]) {
+  await cp(path.join(root, name), path.join(stage, name), { recursive: true });
+}
 
-console.log("4/4 Compactando ZIP...");
-execFileSync(
-  "powershell.exe",
-  [
-    "-NoProfile",
-    "-Command",
-    `
-    $ErrorActionPreference = 'Stop'
-    $stage = '${stage.replace(/'/g, "''")}'
-    $zip = '${zipPath.replace(/'/g, "''")}'
-    if (Test-Path $zip) { Remove-Item $zip -Force }
-    Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
-    Remove-Item $stage -Recurse -Force
-    Write-Host "ZIP: $zip"
-    Write-Host ("Tamanho MB: " + [math]::Round((Get-Item $zip).Length / 1MB, 2))
-    `,
-  ],
-  { stdio: "inherit" },
-);
+const pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+pkg.scripts = {
+  build: "prisma generate",
+  start: "node server.js",
+  postinstall: "prisma generate",
+};
+await writeFile(path.join(stage, "package.json"), JSON.stringify(pkg, null, 2));
 
+console.log("3/3 Compactando com tar...");
+await rm(zipPath, { force: true });
+execFileSync("tar", ["-a", "-c", "-f", zipPath, "-C", stage, "."], {
+  stdio: "inherit",
+});
+await rm(stage, { recursive: true, force: true });
+
+const mb = (statSync(zipPath).size / (1024 * 1024)).toFixed(2);
+console.log(`ZIP: ${zipPath}`);
+console.log(`Tamanho MB: ${mb}`);
 console.log(`
-Pronto: ${zipPath}
-
-Hostinger (ZIP standalone):
+Hostinger:
   Node:     22
-  Install:  true
+  Install:  npm ci --omit=dev
   Build:    npm run build
   Start:    npm run start
 `);
