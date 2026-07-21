@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Build local → upload pronto (contorna o build quebrado da Hostinger)
-  output: "standalone",
   experimental: {
     turbopackFileSystemCacheForDev: true,
     optimizePackageImports: ["framer-motion"],
